@@ -53,7 +53,7 @@ def runclustalo(fasta, verbose=False):
 	return (openprocess(cmdstr, verbose = verbose) )
 
 def runHHmake(aln,outfile ,verbose=False):
-	cmdstr = 'hhmake -cons -M 50 -i '+aln + ' -o ' +outfile
+	cmdstr = 'hhmake -add_cons -M 50 -i '+aln + ' -o ' +outfile
 	return (openprocess(cmdstr,verbose=verbose))
 
 def runaddSS(aln,outfile ,verbose=False):
@@ -66,13 +66,13 @@ def runreformat(aln,outfile ,verbose=False):
 	return (openprocess(cmdstr,verbose=verbose))
 
 def runHHSearch(aln,outfile, palfile  ,verbose= False):
-	cmdstr = 'hhsearch -cpu '+ mp.cpu_count()+' -i '+aln +' -d '+ palfile + ' -o ' +outfile +' -realign -mact .5 '
+	cmdstr = 'hhsearch -cpu '+ str(mp.cpu_count()) + ' -i '+aln +' -d '+ palfile + ' -o ' +outfile +' -realign '
 	return (openprocess(cmdstr, verbose = verbose))
 
-def runHHBlits(aln,outfile, palfile , verbose= False):
-
-	cmdstr = 'hhblits -cpu '+ mp.cpu_count()+' -i '+aln +' -d '+ palfile + ' -o ' +outfile + ' -ohhm ' + outfile+'.hhm'
-
+def runHHBlits(aln,outfile, palfile , iter =3, verbose= False):
+	#output the model by default
+	#TODO add options for model outputfiles
+	cmdstr = 'hhblits -n '+ str(iter) + ' -cpu '+ str(mp.cpu_count()) +' -i '+aln +' -d '+ palfile + ' -o ' +outfile + ' -ohhm ' + outfile.replce( '.hhr', '.hhm' )
 	return (openprocess(cmdstr, verbose = verbose))
 
 def runBlastALL(fastafile,blastpath, formatpath, outdir , nCPU ):
