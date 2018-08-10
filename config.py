@@ -13,6 +13,7 @@ subsample_aln = False
 unipath = '/db/SOFTWARE/hhsuite/uniclust_2017_10/'
 pdb70path = '/db/SOFTWARE/hhsuite/pdfb70/'
 
+
 scriptdir = '/scratch/cluster/monthly/dmoi/hhsuitscritps/'
 #scriptdir = '/usr/lib/hhsuite/scripts/'
 seeds = ['./input/archaeaPositives.fasta' , './input/interprohap2.fasta' , './input/clsuter9_13.fasta']
@@ -37,7 +38,7 @@ distmat = False
 clusterDistmat = False
 
 #align clusters
-makemodels = False
+makemodels = True
 
 #turn alignments into hhm format
 HMMall = True

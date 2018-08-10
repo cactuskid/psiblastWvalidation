@@ -29,7 +29,7 @@ files = glob.glob(config.inputdir +'*.fasta')
 for file in files:
 	for i, seq_record in enumerate(SeqIO.parse(file, 'fasta')):
 		dfdict[seq_record.id] = { 'file':file , 'full':str(seq_record) , 'seq': str(seq_record.seq) , 'id': seq_record.id , 'fasta': '>'+seq_record.id +'\n' + str(seq_record.seq) +'\n'
-		, 'len' : len(seq_record.seq) }
+		, 'len' : len(seq_record.seq) , 'seq_obj': seq_record }
 	else:
 		print(i)
 #make seqDF from all results
@@ -56,8 +56,7 @@ if config.blastall == True:
 
 if config.distmat == True:
 	print( 'make blast DM')
-
-	DM, df , protlabels = blastcluster.Blast_parseTo_DM(config.fastadir + 'allVall.tab' ,  './' , E_VALUE_THRESH=.01)
+	DM, df , protlabels = blastcluster.Blast_parseTo_DM(config.fastadir + 'allVall.tab' ,  './' , E_VALUE_THRESH=10)
 	print(len(protlabels))
 	print(len(df.qseqid.unique()))
 	#dump blast distance calc
@@ -66,7 +65,6 @@ if config.distmat == True:
 
 if config.clusterDistmat == True:
 	print( 'clustering with blast DM')
-
 	with open('BlastallOBjects.pkl' , 'rb')as matplickle:
 		DM ,df, protlabels = pickle.load(matplickle)
 	#clusters ,reverse, labels, index = blastcluster.cluster_distmat(DM, protlabels, clustersize = 50)
@@ -81,19 +79,17 @@ if config.clusterDistmat == True:
 	seqDF['gi']= seqDF['Representative'].map(blastcluster.return_gi)
 	seqDF['upi']= seqDF['Representative'].map(blastcluster.return_UPI)
 	UPIS = seqDF.upi.unique()
-	Scaffolds = list(seqDF.scaffold.unique())[1:]
-	print(Scaffolds)
-	#
-	#filenames = [ seqDF['file'][id] for id in labels ]
+
 	with open('clusterOBjects.pkl' , 'wb')as matplickle:
 		pickle.dump([clusters ,reverse, protlabels , index, DM, seqDF ],matplickle,-1)
 	seqDF.to_csv('clusters.csv')
 
 
 if config.makemodels == True:
-#make alignments and models
-	print( 'aln clusters')
 
+#make alignments and models
+	alignjobs={}
+	print( 'aln clusters')
 	with open( 'clusterOBjects.pkl', 'rb') as clusterobjects:
 	    c = pickle.load(clusterobjects)
 	clusters ,reverse, protlabels,  index, subDM, seqDF   = c
@@ -101,21 +97,30 @@ if config.makemodels == True:
 	for clust in clusters:
 		print(len(seqDF['fasta'][seqDF.cluster == clust]))
 		print(seqDF['fasta'][seqDF.cluster == clust])
-		fasta = seqDF['fasta'][seqDF.cluster == clust].tolist()
-
+		fasta = seqDF['seq_obj'][seqDF.cluster == clust].tolist()
 		shuffle(fasta)
 		#subsample big fasta
 		if len(fasta) > 300:
 			print('subsample to 300')
-			outstr =''.join(fasta[0:300])
+			fasta =fasta[0:300]
 		else:
-			outstr =''.join(fasta)
+			pass
 
 		fastafile = config.alndir + str(clust) + '.fasta'
 		with open( fastafile , 'w' ) as fastaout:
-			fastaout.write(outstr)
-		alnfile = config.alndir + str(clust) + 'aln.fasta'
+			SeqIO.write(fasta, fastaout , "fasta")
+		print(fastafile)
+		p = functions.runclustalo(fastafile, verbose= True , wait = False)
+		#run all alns in parallel...
+		alignjobs[clust] = p
 
+	for clust in alignjobs:
+		output = alignjobs[clust].communicate()
+		aln = output[0].decode()
+
+		print(aln)
+
+		alnfile = config.alndir + str(clust) + 'aln.fasta'
 		with open( alnfile , 'w') as alnout:
 			alnout.write(functions.runclustalo(fastafile, verbose= True).replace('*', '-') )
 
@@ -134,13 +139,13 @@ if config.HMMall == True:
 		okclusters += list(seqDF[seqDF.file == file ].cluster.unique())
 	print(okclusters)
 	for aln in alns:
-		#output = functions.runreformat(aln, aln.split('.fasta')[0] + '.a3m', True)
+		output = functions.runreformat(aln, aln.split('.fasta')[0] + '.a3m', True)
 		#output = functions.runaddSS(aln.split('.fasta')[0] + '.a3m', aln.split('.fasta')[0] + '.a3m' , True)
-		output = functions.runHHmake(aln,aln.split('.fasta')[0] + '.hhm' ,verbose=True)
-		hmms.append(aln.split('.fasta')[0] + '.hhm')
+		#output = functions.runHHmake(aln,aln.split('.fasta')[0] + '.hhm' ,verbose=True)
+		#hmms.append(aln.split('.fasta')[0] + '.hhm')
 
 	#rename HMMs to cluster name
-	hmms = glob.glob( config.alndir + '*.hhm')
+	"""hmms = glob.glob( config.alndir + '*.hhm')
 	for hmm in hmms:
 		print(hmm)
 		newstr= ''
@@ -157,13 +162,13 @@ if config.HMMall == True:
 							newstr += 'NAME ' + hmm.split('/')[2]+'\n'
 							break
 				else:
-					newstr += lineAmphimax at 1pm? Or do you prefer to come over for a change?
+					newstr += line
 
 		with open(hmm, 'w') as outstr:
-			outstr.write(newstr)
+			outstr.write(newstr)"""
+
 	output = functions.runHHDB(config.alndir, 'clusters', verbose = True )
 	results=[]
-	## TODO: add precomputed hmms represent gene clustersize
 	for model in hmms:
 		print(model)
 		outfile= model.replace('hhm', 'hhr')

@@ -9,7 +9,8 @@ from Bio import Entrez
 import multiprocessing as mp
 import config
 
-def openprocess(args , inputstr =None , verbose = False ):
+
+def openprocess(args , inputstr =None , verbose = False , wait = True):
 	args = shlex.split(args)
 	p = subprocess.Popen(args,  stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr= subprocess.PIPE )
 	if verbose == True and inputstr is not None:
@@ -17,19 +18,23 @@ def openprocess(args , inputstr =None , verbose = False ):
 
 	if inputstr != None:
 		p.stdin.write(inputstr.encode())
+	if wait == True:
+		output = p.communicate()
+		if verbose == True:
+			print(output)
+		p.wait()
+		return output[0].decode()
+	else:
+		return p
 
-	output = p.communicate()
-	if verbose == True:
-		print(output)
-	p.wait()
-	return output[0].decode()
+
 
 def runBlast(query,db, verbose):
     cmdstr = 'blast -query '+query+ ' -db '+ db
     return (openprocess(cmdstr, verbose=verbose))
 
 def runHHDB(hmmfold,name, verbose):
-    cmdstr = config.scriptdir+ 'hhblitsdb.pl -ihhm '+hmmfold+ ' -o '+ name
+    cmdstr = config.scriptdir+ 'hhblitsdb.pl -ia3m '+hmmfold+ ' -o '+ name
     return (openprocess(cmdstr, verbose=verbose))
 
 def runBlastDB(inputfile,verbose):
@@ -48,9 +53,9 @@ def runmafft(fasta, verbose=False):
 	cmdstr = 'mafft --localpair --maxiterate 1000  --thread -1 '+fasta
 	return (openprocess(cmdstr, verbose = verbose) )
 
-def runclustalo(fasta, verbose=False):
+def runclustalo(fasta, inputstr= None,verbose=False , wait = True):
 	cmdstr = 'clustalo --auto  -i '+fasta
-	return (openprocess(cmdstr, verbose = verbose) )
+	return (openprocess(cmdstr, inputstr=inputstr, verbose = verbose , wait=wait) )
 
 def runHHmake(aln,outfile ,verbose=False):
 	cmdstr = 'hhmake -add_cons -M 50 -i '+aln + ' -o ' +outfile
