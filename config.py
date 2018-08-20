@@ -10,8 +10,8 @@ blastdir = './blastdir/'
 fastadir = blastdir
 subsample_aln = False
 
-unipath = '/db/SOFTWARE/hhsuite/uniclust_2017_10/'
-pdb70path = '/db/SOFTWARE/hhsuite/pdfb70/'
+unipath = '/db/SOFTWARE/hhsuite/uniclust_2017_10/uniclust30_2017_10_hhsuite/uniclust30_2017_10'
+pdb70path = '/db/SOFTWARE/hhsuite/pdfb70/pdb70'
 
 
 scriptdir = '/scratch/cluster/monthly/dmoi/hhsuitscritps/'
@@ -22,9 +22,10 @@ subsample_aln = False
 anchordir = './anchormodels/'
 
 #turn on or off parts of the pipeline
+load_seqdf = False
 
 #filter input
-length_filter = True
+length_filter = False
 upper_bound = 2000
 lower_bound = 300
 
@@ -35,19 +36,17 @@ blastall = False
 distmat = False
 
 #use kmeans to create clusters
-clusterDistmat = False
+clusterDistmat = True
 
 #align clusters
 makemodels = True
 
 #turn alignments into hhm format
-HMMall = True
-
-#make hmm db of clusters
-compileDB = True
-
+hmm_compile = True
+hmm_allvall = True
 #hmm all v all search
 HHDM_compile = True
 
 #validate clusters with external dbs
-PDB70Validate = True
+unifirst = False
+PDB70Validate = False

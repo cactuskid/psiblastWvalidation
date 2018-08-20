@@ -34,7 +34,7 @@ def runBlast(query,db, verbose):
     return (openprocess(cmdstr, verbose=verbose))
 
 def runHHDB(hmmfold,name, verbose):
-    cmdstr = config.scriptdir+ 'hhblitsdb.pl -ia3m '+hmmfold+ ' -o '+ name
+    cmdstr = config.scriptdir+ 'hhsuitedb.py --ia3m '+hmmfold+'*a3m '+ ' -o '+ name
     return (openprocess(cmdstr, verbose=verbose))
 
 def runBlastDB(inputfile,verbose):
@@ -77,7 +77,7 @@ def runHHSearch(aln,outfile, palfile  ,verbose= False):
 def runHHBlits(aln,outfile, palfile , iter =3, verbose= False):
 	#output the model by default
 	#TODO add options for model outputfiles
-	cmdstr = 'hhblits -n '+ str(iter) + ' -cpu '+ str(mp.cpu_count()) +' -i '+aln +' -d '+ palfile + ' -o ' +outfile + ' -ohhm ' + outfile.replce( '.hhr', '.hhm' )
+	cmdstr = 'hhblits -n '+ str(iter) + ' -cpu '+ str(mp.cpu_count()) +' -i '+aln +' -d '+ palfile + ' -o ' +outfile + ' -ohhm ' + outfile.replace( '.hhr', '.hhm' )
 	return (openprocess(cmdstr, verbose = verbose))
 
 def runBlastALL(fastafile,blastpath, formatpath, outdir , nCPU ):

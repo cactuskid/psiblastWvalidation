@@ -6,9 +6,8 @@ from Bio import SeqIO
 
 
 datadir = '/scratch/cluster/monthly/dmoi/fusexins_all/'
-csvdir = '/scratch/cluster/monthly/dmoi/fusexins_all/input2/'
-metaclustdir = '/scratch/cluster/monthly/dmoi/metaclust_new/'
-scaffolddir = '/scratch/cluster/monthly/dmoi/archaea/scaffolds/'
+csvdir = '/scratch/cluster/monthly/dmoi/fusexins_all/csv/'
+metaclustdir = '/scratch/cluster/monthly/dmoi/metaclust50/'
 
 csvs = glob.glob( config.csvdir + '*.csv')
 
@@ -33,7 +32,7 @@ print(blastdf)
 
 grablist = blastdf.sseqid.unique().tolist()
 print(len(grablist))
-records = SeqIO.parse(config.metaclustdir + "metaclust50_2017_01.fasta", "fasta")
+records = SeqIO.parse(config.metaclustdir + "metaclust_50.fasta", "fasta")
 print(next(records).id)
 count =0
 with open(config.datadir + 'filterpsiblast.fasta', 'w') as metaout:
