@@ -1,12 +1,18 @@
+#datadir = '/scratch/cluster/monthly/dmoi/sas6/'
+csvdir = '/scratch/cluster/monthly/dmoi/archaea/identify/'
+datadir = '/scratch/cluster/monthly/dmoi/archaea/identify/'
 
-
-csvdir = '/scratch/cluster/monthly/dmoi/archaea/metaclustcsv/'
-metaclustdir = '/scratch/cluster/monthly/dmoi/metaclust/'
+metaclustdir = '/scratch/cluster/monthly/dmoi/metaclust50/'
 scaffolddir = '/scratch/cluster/monthly/dmoi/archaea/scaffolds/'
+
+#inputdir = '/scratch/cluster/monthly/dmoi/sas6/input/'
+#alndir = '/scratch/cluster/monthly/dmoi/sas6/aln/'
+#blastdir = '/scratch/cluster/monthly/dmoi/sas6/blastdir/'
 
 inputdir = './input/'
 alndir = './aln/'
 blastdir = './blastdir/'
+
 fastadir = blastdir
 subsample_aln = False
 
@@ -22,18 +28,18 @@ subsample_aln = False
 anchordir = './anchormodels/'
 
 #turn on or off parts of the pipeline
-load_seqdf = False
+load_seqdf = True
 
 #filter input
-length_filter = False
+length_filter = True
 upper_bound = 2000
 lower_bound = 300
 
 #blast all v all
-blastall = False
+blastall = True
 
 #create distance matrix from blast scores
-distmat = False
+distmat = True
 
 #use kmeans to create clusters
 clusterDistmat = True
@@ -48,5 +54,5 @@ hmm_allvall = True
 HHDM_compile = True
 
 #validate clusters with external dbs
-unifirst = False
+unifirst = True
 PDB70Validate = False

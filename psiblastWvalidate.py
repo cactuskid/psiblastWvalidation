@@ -28,7 +28,7 @@ dfdict ={}
 
 if config.load_seqdf == True:
 	files = glob.glob(config.inputdir +'*.fasta')
-	
+
 	for file in files:
 		for i, seq_record in enumerate(SeqIO.parse(file, 'fasta')):
 			dfdict[seq_record.id] = { 'file':file , 'full':str(seq_record) , 'seq': str(seq_record.seq) , 'id': seq_record.id , 'fasta': '>'+seq_record.id +'\n' + str(seq_record.seq) +'\n'
@@ -41,42 +41,43 @@ if config.load_seqdf == True:
 	print(seqDF)
 
 	fastaout = ''.join(seqDF['fasta'].tolist())
-
+	print(fastaout)
 	handle= open(config.blastdir + 'ALLresults.fasta', 'w')
 	handle.write(fastaout)
 	handle.close()
+	print( 'sequences loaded')
 else:
 	with open( 'clusterOBjects.pkl', 'rb') as clusterobjects:
 	    c = pickle.load(clusterobjects)
 	clusters ,reverse, protlabels,  index, subDM, seqDF   = c
 
-print( 'sequences loaded')
-
+"""
 if config.length_filter == True:
+
 	seqDF =seqDF[ seqDF.len > config.lower_bound]
-	seqDF =seqDF[ seqDF.len > config.upper_bound]
-
-
+	seqDF =seqDF[ seqDF.len < config.upper_bound]
+	print(seqDF)
+"""
 if config.blastall == True:
 	print( 'blast all v all')
 	#blast all v all
-	p1, allvall = functions.runBlastALL( config.fastadir+'ALLresults.fasta','blastp', 'makeblastdb', './blastdir/' , mp.cpu_count() )
+	p1, allvall = functions.runBlastALL( config.fastadir+'ALLresults.fasta','blastp', 'makeblastdb', config.blastdir , mp.cpu_count() )
 
 if config.distmat == True:
+
 	print( 'make blast DM')
-	DM, df , protlabels = blastcluster.Blast_parseTo_DM(config.fastadir + 'allVall.tab' ,  './' , E_VALUE_THRESH=10)
+	DM, df , protlabels = blastcluster.Blast_parseTo_DM( config.fastadir + 'allVall.tab' ,  config.blastdir , E_VALUE_THRESH=10)
 	print(len(protlabels))
 	print(len(df.qseqid.unique()))
 	#dump blast distance calc
-	with open('BlastallOBjects.pkl' , 'wb')as matplickle:
+	with open(config.datadir + 'BlastallOBjects.pkl' , 'wb')as matplickle:
 		pickle.dump([DM ,df, protlabels],matplickle,-1)
 
 if config.clusterDistmat == True:
 	print( 'clustering with blast DM')
-	with open('BlastallOBjects.pkl' , 'rb')as matplickle:
+	with open(config.datadir + 'BlastallOBjects.pkl' , 'rb')as matplickle:
 		DM ,df, protlabels = pickle.load(matplickle)
 	clusters ,reverse, labels, index = blastcluster.cluster_distmat(DM, protlabels, clustersize = 50)
-	#clusters ,reverse, labels, index = blastcluster.itercluster(DM, protlabels, clustersize = 200)
 	seqDF['cluster'] = seqDF['id'].map(reverse)
 	print(seqDF.cluster)
 	#df['compositionScore'] = df['seq'].map(compositionScore)
@@ -90,29 +91,29 @@ if config.clusterDistmat == True:
 		pickle.dump([clusters ,reverse, protlabels , index, DM, seqDF ],matplickle,-1)
 	seqDF.to_csv('clusters.csv')
 
-
 if config.makemodels == True:
-
-#make alignments and models
+	#make alignments and models
 	alignjobs={}
+	oneprot=0
 	print( 'aln clusters')
-	with open( 'clusterOBjects.pkl', 'rb') as clusterobjects:
+	with open(config.datadir+ 'clusterOBjects.pkl', 'rb') as clusterobjects:
 	    c = pickle.load(clusterobjects)
 	clusters ,reverse, protlabels,  index, subDM, seqDF   = c
 	clusters = seqDF['cluster'].unique()
-
 	print(clusters)
 	print(len(clusters))
+
 	for clust in clusters:
 		print(len(seqDF['fasta'][seqDF.cluster == clust]))
 		print(seqDF['fasta'][seqDF.cluster == clust])
+
 		fasta = seqDF['seq_obj'][seqDF.cluster == clust].tolist()
 		shuffle(fasta)
-		#subsample big fasta
+
 		if len(fasta)> 1:
-			if len(fasta) > 50:
+			if len(fasta) > 20:
 				print('subsample to 50')
-				fasta =fasta[0:50]
+				fasta =fasta[0:20]
 			else:
 				oneprot+=1
 
@@ -147,7 +148,7 @@ if config.hmm_compile == True:
 	models = []
 	alns = glob.glob(config.alndir + '*aln.fasta')
 	print(alns)
-	with open( 'clusterOBjects.pkl', 'rb') as clusterobjects:
+	with open(config.datadir+ 'clusterOBjects.pkl', 'rb') as clusterobjects:
 		c = pickle.load(clusterobjects)
 	clusters ,reverse, protlabels, index, subDM, seqDF   = c
 	okclusters=[]
