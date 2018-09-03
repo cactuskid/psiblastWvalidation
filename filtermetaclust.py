@@ -56,7 +56,6 @@ def grab(lines, grablist):
 
         for line in lines.split('\n'):
             if '>' in line:
-
                 if record == True:
                     record = False
                     retarray.append(thisstr)

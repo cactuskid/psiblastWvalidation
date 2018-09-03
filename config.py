@@ -36,19 +36,20 @@ upper_bound = 2000
 lower_bound = 300
 
 #blast all v all
-blastall = True
+blastall = False
 
 #create distance matrix from blast scores
-distmat = True
+distmat = False
 
 #use kmeans to create clusters
-clusterDistmat = True
+clusterDistmat = False
 
 #align clusters
-makemodels = True
+makemodels = False
 
 #turn alignments into hhm format
-hmm_compile = True
+hmm_compile = False
+
 hmm_allvall = True
 #hmm all v all search
 HHDM_compile = True

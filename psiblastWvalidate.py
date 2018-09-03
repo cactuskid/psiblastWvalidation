@@ -28,6 +28,7 @@ dfdict ={}
 
 if config.load_seqdf == True:
 	files = glob.glob(config.inputdir +'*.fasta')
+	print(files)
 
 	for file in files:
 		for i, seq_record in enumerate(SeqIO.parse(file, 'fasta')):
@@ -87,7 +88,7 @@ if config.clusterDistmat == True:
 	seqDF['gi']= seqDF['Representative'].map(blastcluster.return_gi)
 	seqDF['upi']= seqDF['Representative'].map(blastcluster.return_UPI)
 
-	with open('clusterOBjects.pkl' , 'wb')as matplickle:
+	with open(config.datadir+ 'clusterOBjects.pkl' , 'wb')as matplickle:
 		pickle.dump([clusters ,reverse, protlabels , index, DM, seqDF ],matplickle,-1)
 	seqDF.to_csv('clusters.csv')
 
@@ -111,9 +112,9 @@ if config.makemodels == True:
 		shuffle(fasta)
 
 		if len(fasta)> 1:
-			if len(fasta) > 20:
+			if len(fasta) > 50:
 				print('subsample to 50')
-				fasta =fasta[0:20]
+				fasta =fasta[0:50]
 			else:
 				oneprot+=1
 
@@ -162,7 +163,7 @@ if config.hmm_compile == True:
 		hmms.append(aln.split('.fasta')[0] + '.hhm')
 
 	#rename HMMs to cluster name
-	"""hmms = glob.glob( config.alndir + '*.hhm')
+	hmms = glob.glob( config.alndir + '*.hhm')
 	for hmm in hmms:
 		print(hmm)
 		newstr= ''
@@ -171,9 +172,7 @@ if config.hmm_compile == True:
 				if 'NAME' in line:
 					#q denotes query or seed sequences are present
 					for cluster in okclusters:
-						if str(cluster)+'aln.hhm' == hmm.split('/')[-1]:module add SequenceAnalysis/SequenceSearch/hhsuite/3.0.3;
-
-
+						if str(cluster)+'aln.hhm' == hmm.split('/')[-1]:
 							print(line)
 							newstr += 'NAME ' + hmm.split('/')[2]+'q'+'\n'
 							break
@@ -184,17 +183,17 @@ if config.hmm_compile == True:
 					newstr += line
 
 		with open(hmm, 'w') as outstr:
-			outstr.write(newstr)"""
+			outstr.write(newstr)
 	output = functions.runHHDB(config.alndir, config.alndir+'clusters', verbose = True )
 
 
 if config.hmm_allvall:
 	results=[]
-	hmms = glob.glob(config.alndir + '*a3m')
+	hmms = glob.glob(config.alndir + '*a3m')+glob.glob(config.alndir + '*hhm')
 	for model in hmms:
 		print(model)
 		outfile= model+'allVall.hhr'
-		output = functions.runHHBlits(model, outfile, palfile= config.alndir+'clusters_a3m_db', iter =1, verbose= True)
+		output = functions.runHHSearch(model, outfile, palfile= config.alndir+'clustersdb_hhm_db',  verbose= True)
 		#output = functions.runHHBlits(model , outfile , config.alndir +'clusters_a3m_db' , verbose = True)
 		results.append(outfile)
 
@@ -214,7 +213,7 @@ if config.HHDM_compile == True:
 
 if config.PDB70Validate == True:
 	print('validate clusters against pdb and uniprot')
-	hmms = glob.glob( config.alndir + '*.a3m')
+	hmms = glob.glob( config.alndir + '*.a3m')+glob.glob(config.alndir + '*hhm')
 	for hmm in hmms:
 		if config.unifirst == True:
 			print(hmm)

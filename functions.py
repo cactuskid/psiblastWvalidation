@@ -26,15 +26,12 @@ def openprocess(args , inputstr =None , verbose = False , wait = True):
 		return output[0].decode()
 	else:
 		return p
-
-
-
 def runBlast(query,db, verbose):
     cmdstr = 'blast -query '+query+ ' -db '+ db
     return (openprocess(cmdstr, verbose=verbose))
 
 def runHHDB(hmmfold,name, verbose):
-    cmdstr = config.scriptdir+ 'hhsuitedb.py --ia3m '+hmmfold+'*a3m '+ ' -o '+ name
+    cmdstr =  '/scratch/cluster/monthly/dmoi/hhsuite-2.0.16/scripts/hhblitsdb.pl -ihhm '+hmmfold  + ' -o '+ hmmfold+ name
     return (openprocess(cmdstr, verbose=verbose))
 
 def runBlastDB(inputfile,verbose):
@@ -54,7 +51,7 @@ def runmafft(fasta, verbose=False):
 	return (openprocess(cmdstr, verbose = verbose) )
 
 def runclustalo(fasta, inputstr= None,verbose=False , wait = True):
-	cmdstr = 'clustalo --auto  -i '+fasta
+	cmdstr = './clustalo --auto  -i '+fasta + ' --threads='+ str(int(mp.cpu_count()/2))
 	return (openprocess(cmdstr, inputstr=inputstr, verbose = verbose , wait=wait) )
 
 def runHHmake(aln,outfile ,verbose=False):
@@ -71,7 +68,7 @@ def runreformat(aln,outfile ,verbose=False):
 	return (openprocess(cmdstr,verbose=verbose))
 
 def runHHSearch(aln,outfile, palfile  ,verbose= False):
-	cmdstr = 'hhsearch -cpu '+ str(mp.cpu_count()) + ' -i '+aln +' -d '+ palfile + ' -o ' +outfile +' -realign '
+	cmdstr = '/scratch/cluster/monthly/dmoi/hhsuite-2.0.16/bin/hhsearch -cpu '+ str(mp.cpu_count()) + ' -i '+aln +' -d '+ palfile + ' -o ' +outfile +' -realign '
 	return (openprocess(cmdstr, verbose = verbose))
 
 def runHHBlits(aln,outfile, palfile , iter =3, verbose= False):
