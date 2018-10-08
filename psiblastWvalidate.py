@@ -37,20 +37,72 @@ if config.load_seqdf == True:
 		else:
 			print(i)
 	#make seqDF from all results
-
 	seqDF = pd.DataFrame.from_dict(dfdict , orient='index')
 	print(seqDF)
 
 	fastaout = ''.join(seqDF['fasta'].tolist())
-	print(fastaout)
+	print(fastaout[0:500])
+
 	handle= open(config.blastdir + 'ALLresults.fasta', 'w')
 	handle.write(fastaout)
 	handle.close()
 	print( 'sequences loaded')
+
+elif config.blast_seqDF == True:
+
+	#for domain specific hits... only grab relevant parts from psiblast out
+
+	files = glob.glob(config.inputdir +'*.csv')
+	dfs= []
+	print(files)
+	columnsstr = 'qseqid sseqid qstart qend sstart send length evalue sseq'
+	for file in files:
+		dfs.append(blastcluster.blastToDF(file , columnsstr = columnsstr))
+
+	final = pd.concat(dfs)
+	final = final[final.evalue < .01]
+	final = final[final.length > 0]
+
+	final['fasta'] = final.apply(lambda x : '> ' +str(x.sseqid)+'\n'+str(x.sseq).replace('-','')+'\n' , axis = 1)
+	print(final)
+	#final['full'] = final[['sseqid','sseq' ] ].apply(lambda x : x.sseqid+'\n'+x.sseq+'\n' , axis = 1)
+	#final.sort_values(['sseqid','length'],ascending=[True,False])
+	#take =longest sequence of each hit
+	fastaout=''
+
+
+
+	dfdict= {}
+	with open(config.blastdir + 'ALLresults.fasta', 'w') as fastaout:
+		for ID in final.sseqid.unique() :
+			subdf =final[final.sseqid==ID].sort_values(['length'] ,ascending = False)
+			#print(subdf.fasta.iloc[0]+'\n')
+			if len(str(subdf.sseq.iloc[0].replace('-','') ))> 0 :
+				fastaout.write(subdf.fasta.iloc[0])
+				dfdict[ID] = {  'seq': str(subdf.sseq.iloc[0].replace('-','') ) , 'id': ID , 'fasta': subdf.fasta.iloc[0] , 'len': len(str(subdf.sseq.iloc[0].replace('-','') ))}
+
+		fastas= glob.glob(config.inputdir + '*.fasta')
+		print(fastas)
+		#for fasta in fastas:
+		#	with open( fasta, 'r') as fastain:
+		#		fastaout.write(fastain.read())
+		#	for i, seq_record in enumerate(SeqIO.parse(fasta , 'fasta')):
+		#		dfdict[seq_record.id] = {  'seq': str(seq_record.seq) , 'id': seq_record.id , 'fasta': '>'+seq_record.id +'\n' + str(seq_record.seq),  'len' : len(seq_record.seq) }
+
+
+
+	#make seqDF from all results
+	seqDF = pd.DataFrame.from_dict(dfdict , orient='index')
+	print(seqDF)
+
+
 else:
-	with open( 'clusterOBjects.pkl', 'rb') as clusterobjects:
+	with open(config.datadir+ 'clusterOBjects.pkl', 'rb') as clusterobjects:
 	    c = pickle.load(clusterobjects)
 	clusters ,reverse, protlabels,  index, subDM, seqDF   = c
+
+
+import pdb; pdb.set_trace()
 
 """
 if config.length_filter == True:
@@ -119,10 +171,14 @@ if config.makemodels == True:
 				oneprot+=1
 
 			fastafile = config.alndir + str(clust) + '.fasta'
+
 			with open( fastafile , 'w' ) as fastaout:
 				SeqIO.write(fasta, fastaout , "fasta")
+
 			print(fastafile)
+
 			p = functions.runclustalo(fastafile, verbose= True , wait = False)
+
 			#run all alns in parallel...
 			alignjobs[clust] = p
 		else:
@@ -133,6 +189,7 @@ if config.makemodels == True:
 
 	#join all jobs and check aln
 	for clust in alignjobs:
+
 		output = alignjobs[clust].communicate()
 		aln = output[0].decode()
 
@@ -140,7 +197,7 @@ if config.makemodels == True:
 
 		alnfile = config.alndir + str(clust) + 'aln.fasta'
 		with open( alnfile , 'w') as alnout:
-			alnout.write(functions.runclustalo(fastafile, verbose= True).replace('*', '-') )
+			alnout.write(aln.replace('*', '-') )
 
 if config.hmm_compile == True:
 	print( 'prepare hmms for each cluster')
@@ -156,13 +213,14 @@ if config.hmm_compile == True:
 	for file in config.seeds:
 		okclusters += list(seqDF[seqDF.file == file ].cluster.unique())
 	print(okclusters)
+	print(alns)
+
 	for aln in alns:
 		#output = functions.runreformat(aln, aln.split('.fasta')[0] + '.a3m', True)
 		#output = functions.runaddSS(aln.split('.fasta')[0] + '.a3m', aln.split('.fasta')[0] + '.a3m' , True)
 		output = functions.runHHmake(aln,aln.split('.fasta')[0] + '.hhm' ,verbose=True)
-		hmms.append(aln.split('.fasta')[0] + '.hhm')
-
-	#rename HMMs to cluster name
+		#hmms.append(aln.split('.fasta')[0] + '.hhm')
+		#rename HMMs to cluster name
 	hmms = glob.glob( config.alndir + '*.hhm')
 	for hmm in hmms:
 		print(hmm)
@@ -181,33 +239,45 @@ if config.hmm_compile == True:
 							break
 				else:
 					newstr += line
-
 		with open(hmm, 'w') as outstr:
 			outstr.write(newstr)
-	output = functions.runHHDB(config.alndir, config.alndir+'clusters', verbose = True )
+
+	#output = functions.runHHDB(config.alndir, config.alndir+'clusters', verbose = True )
 
 
 if config.hmm_allvall:
 	results=[]
-	hmms = glob.glob(config.alndir + '*a3m')+glob.glob(config.alndir + '*hhm')
+	hmms = glob.glob(config.alndir + '*a3m')+glob.glob(config.alndir + '*aln.hhm')
 	for model in hmms:
 		print(model)
 		outfile= model+'allVall.hhr'
-		output = functions.runHHSearch(model, outfile, palfile= config.alndir+'clustersdb_hhm_db',  verbose= True)
+		output = functions.runHHSearch(model, outfile, palfile= config.alndir+'clusters_hhm_db',  verbose= True)
 		#output = functions.runHHBlits(model , outfile , config.alndir +'clusters_a3m_db' , verbose = True)
 		results.append(outfile)
 
 if config.HHDM_compile == True:
 	print('compile all v all hmm results')
-	results = glob.glob( config.alndir + '*.allvall.hhr')
-	probaDM, evalDM ,pvalDM,  lenDM , scoreDM, SSDM, NX , clusternames = blastcluster.HHSearch_parseTo_DMandNX(results , None )
-	HHDM =  1 / ( (scoreDM +  3*SSDM) )
+	results = glob.glob( config.alndir + '*allVall.hhr')
+	print(results)
+	names = [ n.split('/')[-1] for n in results]
+	probaDM, evalDM ,pvalDM,  lenDM , scoreDM, SSDM, covDM, NX , clusternames = blastcluster.HHSearch_parseTo_DMandNX(results , None )
+	with open(config.alndir + 'hmmallvall.pkl', mode='wb') as networkout:
+		networkout.write(pickle.dumps([probaDM, evalDM ,pvalDM,  lenDM , scoreDM, SSDM, covDM, NX , clusternames] , 2))
+
+	HHDM =  (1 / np.multiply(scoreDM ,lenDM	))
+	HHDM = HHDM/ np.amax(HHDM)
+
+
 	np.fill_diagonal(HHDM , 0 )
-	HHDM[HHDM == np.inf ] = 10**5
-	HHDM /= 1000
+	#HHDM[HHDM == np.inf ] = 10**5
+	HHDM *= 1000
+	print(HHDM)
 	matfile = config.alndir+'/HHDM.mat'
 	outpath,outstr = blastcluster.distmat_to_txt(clusternames , HHDM, matfile )
 	outfile = matfile+'_tree.txt'
+
+	## TODO: triangles -> homology graph via orthodb strategy in separate notebook
+
 	#output = functions.runFastme(matfile, outfile)
 	#print(output)
 
@@ -218,9 +288,9 @@ if config.PDB70Validate == True:
 		if config.unifirst == True:
 			print(hmm)
 			#generate a more diverse MSA by using the uniprot
-			functions.runHHBlits(hmm , hmm.replace('.a3m', 'uniprot.hhr' ) , palfile= config.unipath ,verbose=True )
-			inhmm =  hmm+'uniprot.hhr.hhm'
+			functions.runHHBlits(hmm , hmm.replace('.hhm', 'uniprot.hhr' ) , palfile= config.unipath ,verbose=True )
+			functions.runHHBlits( hmm.replace('.hhm', 'uniprot.hhm' ), hmm+'pdb70.hhr', palfile= config.pdb70path , iter = 1)
 		else:
 			inhmm = hmm
 		#search the PDB
-		functions.runHHBlits(inhmm, hmm+'pdb70.hhr', palfile= config.pdb70path , iter = 1)
+			functions.runHHBlits(inhmm, hmm, palfile= config.pdb70path , iter = 1)

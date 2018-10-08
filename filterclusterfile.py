@@ -47,9 +47,7 @@ if grabhits:
     with open('globalout_rev2.fasta' , 'w') as globalout:
         with open( clusterfile, 'r') as clusterin:
             for i,line in enumerate(clusterin):
-
                 if i > startnum:
-
                     if i % 10000000 == 0:
                         print(i)
                         print('sequences found:'+str(len(clusterout)))
@@ -107,7 +105,6 @@ if grabscaffolds:
     hitlist = set([ ''.join(entry.replace('>','').strip().split('_')[:-1]) for entry in hitlist ])
     clusterout ={}
     print(hitlist)
-
     with open('scaffoldout.fasta' , 'w') as globalout:
         with open( clusterfile, 'r') as clusterin:
             for i,line in enumerate(clusterin):
@@ -136,7 +133,6 @@ if grabscaffolds:
                             clusterout[entry_name] = {}
                             clusterout[entry_name]['representative'] = representative
                             clusterout[entry_name]['sequence'] = ''
-
                             print(line)
                             globalout.write(line)
 
@@ -145,6 +141,7 @@ if grabscaffolds:
                                 seqDf = pd.DataFrame.from_dict(clusterout, orient='index')
                                 seqDf.to_csv(csvscaffolds)
                                 print(seqDf)
+                    
                     elif record==True and '>' not in line:
                         #sequence data
                         clusterout[entry_name]['sequence'] += line

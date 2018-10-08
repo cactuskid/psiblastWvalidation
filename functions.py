@@ -68,7 +68,7 @@ def runreformat(aln,outfile ,verbose=False):
 	return (openprocess(cmdstr,verbose=verbose))
 
 def runHHSearch(aln,outfile, palfile  ,verbose= False):
-	cmdstr = '/scratch/cluster/monthly/dmoi/hhsuite-2.0.16/bin/hhsearch -cpu '+ str(mp.cpu_count()) + ' -i '+aln +' -d '+ palfile + ' -o ' +outfile +' -realign '
+	cmdstr = '/scratch/cluster/monthly/dmoi/hhsuite-2.0.16/bin/hhsearch -cpu '+ str(mp.cpu_count()) + ' -i '+aln +' -d '+ palfile + ' -o ' +outfile +' -e 1 -p 0 -realign'
 	return (openprocess(cmdstr, verbose = verbose))
 
 def runHHBlits(aln,outfile, palfile , iter =3, verbose= False):
