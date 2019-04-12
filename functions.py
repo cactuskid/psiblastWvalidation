@@ -1,5 +1,6 @@
 
 
+
 import subprocess
 import shlex
 from tempfile import NamedTemporaryFile as namedTemp
@@ -50,8 +51,8 @@ def runmafft(fasta, verbose=False):
 	cmdstr = 'mafft --localpair --maxiterate 1000  --thread -1 '+fasta
 	return (openprocess(cmdstr, verbose = verbose) )
 
-def runclustalo(fasta, inputstr= None,verbose=False , wait = True):
-	cmdstr = './clustalo --auto  -i '+fasta + ' --threads='+ str(int(mp.cpu_count()/2))
+def runclustalo(fasta, outfile, inputstr= None,verbose=False , wait = True):
+	cmdstr = './clustalo --auto  -i '+fasta + ' -o  '+ outfile + ' --force --threads 4 '
 	return (openprocess(cmdstr, inputstr=inputstr, verbose = verbose , wait=wait) )
 
 def runHHmake(aln,outfile ,verbose=False):
@@ -74,7 +75,7 @@ def runHHSearch(aln,outfile, palfile  ,verbose= False):
 def runHHBlits(aln,outfile, palfile , iter =3, verbose= False):
 	#output the model by default
 	#TODO add options for model outputfiles
-	cmdstr = 'hhblits -n '+ str(iter) + ' -cpu '+ str(mp.cpu_count()) +' -i '+aln +' -d '+ palfile + ' -o ' +outfile + ' -ohhm ' + outfile.replace( '.hhr', '.hhm' )
+	cmdstr = 'hhblits -n '+ str(iter) + ' -cpu '+ str(mp.cpu_count()) +' -i '+aln +' -d '+ palfile + ' -cov 50 -o ' +outfile + ' -ohhm ' + outfile.replace( '.hhr', '.hhm' )
 	return (openprocess(cmdstr, verbose = verbose))
 
 def runBlastALL(fastafile,blastpath, formatpath, outdir , nCPU ):

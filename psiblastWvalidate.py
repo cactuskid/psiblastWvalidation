@@ -55,15 +55,19 @@ elif config.blast_seqDF == True:
 	files = glob.glob(config.inputdir +'*.csv')
 	dfs= []
 	print(files)
-	columnsstr = 'qseqid sseqid qstart qend sstart send length evalue sseq'
+	columnsstr = 'qseqid qlen slen qcovhsp sseqid staxids bitscore  evalue score pident qstart qend sstart send sseq sscinames'
 	for file in files:
 		dfs.append(blastcluster.blastToDF(file , columnsstr = columnsstr))
 
 	final = pd.concat(dfs)
+	print(final)
 	final = final[final.evalue < .01]
-	final = final[final.length > 0]
+
+	#final = final[final.length > 0]
 
 	final['fasta'] = final.apply(lambda x : '> ' +str(x.sseqid)+'\n'+str(x.sseq).replace('-','')+'\n' , axis = 1)
+	final['length'] = final.apply(lambda x : len(x.sseq.replace('-','')) , axis = 1)
+
 	print(final)
 	#final['full'] = final[['sseqid','sseq' ] ].apply(lambda x : x.sseqid+'\n'+x.sseq+'\n' , axis = 1)
 	#final.sort_values(['sseqid','length'],ascending=[True,False])
@@ -102,7 +106,6 @@ else:
 	clusters ,reverse, protlabels,  index, subDM, seqDF   = c
 
 
-import pdb; pdb.set_trace()
 
 """
 if config.length_filter == True:
@@ -146,6 +149,8 @@ if config.clusterDistmat == True:
 
 if config.makemodels == True:
 	#make alignments and models
+	alndone = glob.glob(config.alndir + '*aln.fasta')
+
 	alignjobs={}
 	oneprot=0
 	print( 'aln clusters')
@@ -157,10 +162,9 @@ if config.makemodels == True:
 	print(len(clusters))
 
 	for clust in clusters:
-		print(len(seqDF['fasta'][seqDF.cluster == clust]))
-		print(seqDF['fasta'][seqDF.cluster == clust])
-
-		fasta = seqDF['seq_obj'][seqDF.cluster == clust].tolist()
+		#print(len(seqDF['fasta'][seqDF.cluster == clust]))
+		#print(seqDF['fasta'][seqDF.cluster == clust])
+		fasta = seqDF['fasta'][seqDF.cluster == clust].tolist()
 		shuffle(fasta)
 
 		if len(fasta)> 1:
@@ -169,39 +173,40 @@ if config.makemodels == True:
 				fasta =fasta[0:50]
 			else:
 				oneprot+=1
-
 			fastafile = config.alndir + str(clust) + '.fasta'
-
 			with open( fastafile , 'w' ) as fastaout:
-				SeqIO.write(fasta, fastaout , "fasta")
-
-			print(fastafile)
-
-			p = functions.runclustalo(fastafile, verbose= True , wait = False)
-
-			#run all alns in parallel...
-			alignjobs[clust] = p
-		else:
-			pass
-
-	print(len(alignjobs))
-	print(len(alignjobs)+oneprot)
-
-	#join all jobs and check aln
-	for clust in alignjobs:
-
-		output = alignjobs[clust].communicate()
-		aln = output[0].decode()
-
-		print(aln)
-
-		alnfile = config.alndir + str(clust) + 'aln.fasta'
-		with open( alnfile , 'w') as alnout:
-			alnout.write(aln.replace('*', '-') )
+				fastaout.write(''.join(fasta))
+			#print(fastafile)
+			alnfile = config.alndir + str(clust) + 'aln.fasta'
+			if config.overwrite or alnfile not in alndone:
+				print(alnfile)
+				p = functions.runclustalo(fastafile, alnfile, verbose= True , wait = False)
+				#run all alns in parallel...
+				alignjobs[clust] = p
+			while len(alignjobs)> 10:
+				time.sleep(1)
+				keys =list( alignjobs.keys() )
+				for c in keys:
+					if c in alignjobs:
+						poll =alignjobs[c].poll()
+						if poll is not None:
+							print(poll)
+							print(alignjobs[c].communicate())
+							del alignjobs[c]
+							break
+	while len(alignjobs)> 0:
+		time.sleep(1)
+		keys =list( alignjobs.keys() )
+		for c in keys:
+			if c in alignjobs:
+				poll =alignjobs[c].poll()
+				if poll is not None:
+					print(poll)
+					print(alignjobs[c].communicate())
+					del alignjobs[c]
 
 if config.hmm_compile == True:
 	print( 'prepare hmms for each cluster')
-
 	hmms = []
 	models = []
 	alns = glob.glob(config.alndir + '*aln.fasta')
@@ -209,11 +214,6 @@ if config.hmm_compile == True:
 	with open(config.datadir+ 'clusterOBjects.pkl', 'rb') as clusterobjects:
 		c = pickle.load(clusterobjects)
 	clusters ,reverse, protlabels, index, subDM, seqDF   = c
-	okclusters=[]
-	for file in config.seeds:
-		okclusters += list(seqDF[seqDF.file == file ].cluster.unique())
-	print(okclusters)
-	print(alns)
 
 	for aln in alns:
 		#output = functions.runreformat(aln, aln.split('.fasta')[0] + '.a3m', True)
@@ -229,16 +229,11 @@ if config.hmm_compile == True:
 			for line in instr:
 				if 'NAME' in line:
 					#q denotes query or seed sequences are present
-					for cluster in okclusters:
-						if str(cluster)+'aln.hhm' == hmm.split('/')[-1]:
-							print(line)
-							newstr += 'NAME ' + hmm.split('/')[2]+'q'+'\n'
-							break
-						else:
-							newstr += 'NAME ' + hmm.split('/')[2]+'\n'
-							break
+					newstr += 'NAME ' + hmm.split('/')[-1].replace('.hhm','') +'\n'
+
 				else:
 					newstr += line
+
 		with open(hmm, 'w') as outstr:
 			outstr.write(newstr)
 
@@ -248,10 +243,12 @@ if config.hmm_compile == True:
 if config.hmm_allvall:
 	results=[]
 	hmms = glob.glob(config.alndir + '*a3m')+glob.glob(config.alndir + '*aln.hhm')
+	done =  glob.glob(config.alndir + '*allVall.hhr')
 	for model in hmms:
 		print(model)
 		outfile= model+'allVall.hhr'
-		output = functions.runHHSearch(model, outfile, palfile= config.alndir+'clusters_hhm_db',  verbose= True)
+		if config.overwrite or outfile not in done:
+			output = functions.runHHSearch(model, outfile, palfile= config.alndir+'clusters_hhm_db',  verbose= True)
 		#output = functions.runHHBlits(model , outfile , config.alndir +'clusters_a3m_db' , verbose = True)
 		results.append(outfile)
 
@@ -276,21 +273,14 @@ if config.HHDM_compile == True:
 	outpath,outstr = blastcluster.distmat_to_txt(clusternames , HHDM, matfile )
 	outfile = matfile+'_tree.txt'
 
-	## TODO: triangles -> homology graph via orthodb strategy in separate notebook
-
-	#output = functions.runFastme(matfile, outfile)
-	#print(output)
 
 if config.PDB70Validate == True:
 	print('validate clusters against pdb and uniprot')
-	hmms = glob.glob( config.alndir + '*.a3m')+glob.glob(config.alndir + '*hhm')
+	hmms = glob.glob(config.alndir + '*aln.hhm')
+	done = glob.glob(config.alndir + '*uniprot.hhr')
 	for hmm in hmms:
-		if config.unifirst == True:
+
+		if hmm.replace('.hhm', 'uniprot.hhr' ) not in done or config.overwrite:
 			print(hmm)
-			#generate a more diverse MSA by using the uniprot
 			functions.runHHBlits(hmm , hmm.replace('.hhm', 'uniprot.hhr' ) , palfile= config.unipath ,verbose=True )
 			functions.runHHBlits( hmm.replace('.hhm', 'uniprot.hhm' ), hmm+'pdb70.hhr', palfile= config.pdb70path , iter = 1)
-		else:
-			inhmm = hmm
-		#search the PDB
-			functions.runHHBlits(inhmm, hmm, palfile= config.pdb70path , iter = 1)

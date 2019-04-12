@@ -64,6 +64,7 @@ def cluster_distmat(DM, protlabels, clustersize = 20 , visualize= False , cluste
 
 	n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
 	print('Estimated number of clusters: %d' % n_clusters_)
+
 	clusters = {}
 
 	reverse = {}
@@ -188,13 +189,14 @@ def Blast_parseTo_DM(blastTab,  outdir , E_VALUE_THRESH=.01):
 	#make this a sparse mat above a certain number of seqs?
 	print('reading blast allvall output, creating distmat and index')
 	scores = {}
-	df = blastToDF(blastTab)
+	df = blastToDF(blastTab , columnsstr= 'qseqid sseqid qstart qend sstart send length evalue sseq')
 	df = df[df.evalue < E_VALUE_THRESH]
-	subdf = df[df.evalue >= 10**-200 ]
-	identitical = df[ df.evalue <= 10**-200 ]
+	subdf = df[df.evalue > 0 ]
+	identitical = df[ df.evalue == 0 ]
+
 	pool = MP.Pool(30)
-	subdf['score'] = pool.map_async( blastscore, subdf['evalue'] , 100).get()
-	subdf['score'] = subdf['score']/subdf['length']
+	subdf['score'] = pool.map_async( blastscore, subdf['evalue'] , 1000).get()
+	#subdf['score'] = subdf['score']#/subdf['length']
 
 	identitical['score'] = 0
 	df = pd.concat( [subdf , identitical])
@@ -218,8 +220,10 @@ def Blast_parseTo_DM(blastTab,  outdir , E_VALUE_THRESH=.01):
 	print('DONE')
 	return DM, df , labels
 
+
+
 def blastToDF(blastTab , columnsstr = 'qseqid qlen slen qcovhsp sseqid staxids bitscore score evalue pident qstart qend sstart send'):
-	
+
 	columns = columnsstr.split()
 	df = pd.read_csv(blastTab , names = columns , header= None)
 	df['evalue']=df['evalue'].convert_objects(convert_numeric=True)
@@ -256,10 +260,11 @@ def HHSearch_parseTo_DMandNX(hhrs , labels=None ):
 	print(clusternames)
 	evalDM = np.ones( (len(clusternames),len(clusternames) ))
 	pvalDM = np.ones( (len(clusternames),len(clusternames) ))
-	scoreDM = np.zeros( (len(clusternames),len(clusternames) ))
-	SSDM = np.zeros( (len(clusternames),len(clusternames) ))
+	scoreDM = np.ones( (len(clusternames),len(clusternames) ))
+	SSDM = np.ones( (len(clusternames),len(clusternames) ))
 	probaDM = np.zeros( (len(clusternames),len(clusternames) ))
 	lenDM =  np.ones( (len(clusternames),len(clusternames) ))
+	covDM =  np.ones( (len(clusternames),len(clusternames) ))
 	NX = nx.Graph()
 	for i,hhr in enumerate(hhrs):
 		protlist = []
@@ -271,6 +276,10 @@ def HHSearch_parseTo_DMandNX(hhrs , labels=None ):
 			if 'anchor' not in hit.id and 'anchor' not in profile.query_name:
 				i = clusternames.index(hit.id.strip() )
 				j = clusternames.index(profile.query_name.strip())
+
+
+				covq = hit.qlength / (hit.qend - hit.qstart)
+				covDM[i,j] = min([covq,covDM[i,j]])
 
 				if hit.evalue < evalDM[i,j]:
 					evalDM[i,j] = hit.evalue
@@ -297,8 +306,20 @@ def HHSearch_parseTo_DMandNX(hhrs , labels=None ):
 				if lenDM[i,j] == 1 or lenDM[i,j] > hit.qlength:
 					lenDM[i,j] = hit.qlength
 					lenDM[j,i] = lenDM[i,j]
-
 			if hit.id != profile.query_name :
-				NX.add_edge( hit.id , profile.query_name )
-				NX[hit.id][profile.query_name]['score']= hit.score
-	return probaDM, evalDM ,pvalDM,  lenDM , scoreDM, SSDM, NX , clusternames
+				dico ={}
+				dico['score']= scoreDM[i,j]
+				dico['prob']= probaDM[i,j]
+				dico['eval']= evalDM[i,j]
+				dico['ss']= SSDM[i,j]
+				dico['length']= lenDM[i,j]
+				dico['qend']= covDM[i,j]
+				dico['qstart']= covDM[i,j]
+				dico['end']= covDM[i,j]
+				dico['start']= covDM[i,j]
+				dico['end']= covDM[i,j]
+				NX.add_edge( hit.id , profile.query_name, dict= dico )
+				NX.nodes[hit.id]['len']= hit.slength
+				NX.nodes[profile.query_name]['len']= hit.qlength
+				NX.nodes[profile.query_name]['file']= hhr
+	return probaDM, evalDM ,pvalDM,  lenDM , scoreDM, SSDM, covDM, NX , clusternames
