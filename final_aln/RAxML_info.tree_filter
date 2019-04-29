@@ -1,0 +1,213 @@
+
+
+IMPORTANT WARNING: Sequences mc36136795|Representative=scaffold72169_1/1457/1-456 and AntAceMinimDraft_18_1070375.scaffolds.fasta_scaffold72169_1/1-456 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc38481269|Representative=scaffold34113_4/1465/1-464 and AntAceMinimDraft_4_1070372.scaffolds.fasta_scaffold34113_4/1-464 are exactly identical
+
+
+IMPORTANT WARNING: Sequences AntAceMinimDraft_14_1070370.scaffolds.fasta_scaffold61386_1/1-508 and mc30382121|Representative=scaffold61386_1/1509/1-508 are exactly identical
+
+
+IMPORTANT WARNING: Sequences J3M5E4/1-554 and UPI000275852F/1-554 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc36042489|Representative=scaffold42609_3/1563/1-563 and AntAceMinimDraft_18_1070375.scaffolds.fasta_scaffold42609_3/1-563 are exactly identical
+
+
+IMPORTANT WARNING: Sequences UPI0001DFE3FA/1-565 and D8RKA0/1-565 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A4ID10/1-577 and A0A2K4Z8D8/1-577 are exactly identical
+
+
+IMPORTANT WARNING: Sequences AntAceMinimDraft_18_1070375.scaffolds.fasta_scaffold01114_5/1-582 and mc35797103|Representative=scaffold01114_5/1583/1-582 are exactly identical
+
+
+IMPORTANT WARNING: Sequences AntAceMinimDraft_18_1070375.scaffolds.fasta_scaffold11370_2/1-585 and mc35897075|Representative=scaffold11370_2/1586/1-585 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc38258279|Representative=scaffold00557_40/1603/1-602 and AntAceMinimDraft_4_1070372.scaffolds.fasta_scaffold00557_40/1-602 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc36020547|Representative=scaffold36732_2/1604/1-603 and AntAceMinimDraft_18_1070375.scaffolds.fasta_scaffold36732_2/1-603 are exactly identical
+
+
+IMPORTANT WARNING: Sequences Q1X7J9/1-611 and UPI000095BFE7/1-611 are exactly identical
+
+
+IMPORTANT WARNING: Sequences D2VN83/1-615 and UPI0001C3CDFF/1-615 are exactly identical
+
+
+IMPORTANT WARNING: Sequences AntAceMinimDraft_4_1070372.scaffolds.fasta_scaffold10520_11/1-620 and mc38372904|Representative=scaffold10520_11/1621/1-620 are exactly identical
+
+
+IMPORTANT WARNING: Sequences AntAceMinimDraft_10_1070366.scaffolds.fasta_scaffold19757_2/1-630 and mc28196745|Representative=scaffold19757_2/1631/1-630 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc1192409641|Representative=scaffold05169_1/1642/1-641 and RifOxyB1_1023888.scaffolds.fasta_scaffold05169_1/1-641 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc28117627|Representative=scaffold06212_4/1643/1-642 and AntAceMinimDraft_10_1070366.scaffolds.fasta_scaffold06212_4/1-642 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc618048137|Representative=scaffold00281_5/1647/1-646 and PlaIllAssembly_1097288.scaffolds.fasta_scaffold00281_9/1-646 are exactly identical
+
+
+IMPORTANT WARNING: Sequences mc28037469|Representative=scaffold00069_42/1660/1-659 and AntAceMinimDraft_10_1070366.scaffolds.fasta_scaffold00069_38/1-659 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A0S4KHY6/1-670 and UPI00072543F7/1-670 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A023BC74/1-711 and UPI000442BE2B/1-711 are exactly identical
+
+
+IMPORTANT WARNING: Sequences UPI0005D6E3D7/1-728 and A0A0E0EU07/1-728 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A1A8YT95/1-820 and A0A1C3KGX6/1-820 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A077XEH7/1-828 and C3RTL2/1-828 are exactly identical
+
+
+IMPORTANT WARNING: Sequences B3L3T3/1-859 and A0A1Y3DRV9/1-859 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A0L7KH81/1-889 and W7FET3/1-889 are exactly identical
+
+
+IMPORTANT WARNING: Sequences Q8IJQ3/1-889 and UPI0000084D26/1-889 are exactly identical
+
+
+IMPORTANT WARNING: Sequences Q8IJQ3/1-889 and A0A024W721/1-889 are exactly identical
+
+
+IMPORTANT WARNING: Sequences Q8IJQ3/1-889 and W7FYJ9/1-889 are exactly identical
+
+
+IMPORTANT WARNING: Sequences Q8IJQ3/1-889 and W7JYM5/1-889 are exactly identical
+
+
+IMPORTANT WARNING: Sequences Q8IJQ3/1-889 and A0A024WQX7/1-889 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A1X7UM90/1-952 and UPI00023E8407/1-952 are exactly identical
+
+
+IMPORTANT WARNING: Sequences C0H4U8/1-999 and A0A2I0BWW6/1-999 are exactly identical
+
+
+IMPORTANT WARNING: Sequences UPI0001C4994D/1-1139 and A4GRC6/1-1139 are exactly identical
+
+
+IMPORTANT WARNING: Sequences S7UNS3/1-1189 and A0A086LDM3/1-1189 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A086KKI1/1-1189 and A0A086K6J6/1-1189 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A086KKI1/1-1189 and V4YQS6/1-1189 are exactly identical
+
+
+IMPORTANT WARNING: Sequences A0A1A8VLJ9/1-1213 and UPI0007F4A82E/1-1213 are exactly identical
+
+IMPORTANT WARNING
+Found 38 sequences that are exactly identical to other sequences in the alignment.
+Normally they should be excluded from the analysis.
+
+Just in case you might need it, an alignment file with 
+sequence duplicates removed is printed to file concatfilter.aln.fasta.reduced
+
+
+This is RAxML version 8.2.12 released by Alexandros Stamatakis on May 2018.
+
+With greatly appreciated code contributions by:
+Andre Aberer      (HITS)
+Simon Berger      (HITS)
+Alexey Kozlov     (HITS)
+Kassian Kobert    (HITS)
+David Dao         (KIT and HITS)
+Sarah Lutteropp   (KIT and HITS)
+Nick Pattengale   (Sandia)
+Wayne Pfeiffer    (SDSC)
+Akifumi S. Tanabe (NRIFS)
+Charlie Taylor    (UF)
+
+
+Alignment has 3846 distinct alignment patterns
+
+Proportion of gaps and completely undetermined characters in this alignment: 82.55%
+
+RAxML rapid hill-climbing mode
+
+Using 1 distinct models/data partitions with joint branch length optimization
+
+
+Executing 1 inferences on the original alignment using 1 distinct randomized MP trees
+
+All free model parameters will be estimated by RAxML
+GAMMA model of rate heterogeneity, ML estimate of alpha-parameter
+
+GAMMA Model parameters will be estimated up to an accuracy of 0.1000000000 Log Likelihood units
+
+Partition: 0
+Alignment Patterns: 3846
+Name: No Name Provided
+DataType: AA
+Substitution Matrix: AUTO
+Using fixed base frequencies
+
+
+
+
+RAxML was called as follows:
+
+raxmlHPC-PTHREADS-SSE3 -s concatfilter.aln.fasta -n tree_filter -m PROTGAMMAAUTO -p 1234 -T 25 
+
+
+Partition: 0 with name: No Name Provided
+Base frequencies: 0.087 0.044 0.039 0.057 0.019 0.037 0.058 0.083 0.024 0.048 0.086 0.062 0.020 0.038 0.046 0.070 0.061 0.014 0.035 0.071 
+
+Automatic protein model assignment algorithm using ML criterion:
+
+	Partition: 0 best-scoring AA model: VT likelihood -378573.645581 with fixed base frequencies
+
+
+Automatic protein model assignment algorithm using ML criterion:
+
+	Partition: 0 best-scoring AA model: VT likelihood -377912.162019 with fixed base frequencies
+
+
+Automatic protein model assignment algorithm using ML criterion:
+
+	Partition: 0 best-scoring AA model: VT likelihood -377545.495124 with fixed base frequencies
+
+
+Automatic protein model assignment algorithm using ML criterion:
+
+	Partition: 0 best-scoring AA model: VT likelihood -377176.544143 with fixed base frequencies
+
+
+Automatic protein model assignment algorithm using ML criterion:
+
+	Partition: 0 best-scoring AA model: VT likelihood -377150.264943 with fixed base frequencies
+
+
+Inference[0]: Time 52636.948000 GAMMA-based likelihood -377038.881363, best rearrangement setting 5
+alpha[0]: 4.348914 
+
+
+Conducting final model optimizations on all 1 trees under GAMMA-based models ....
+
+Automatic protein model assignment algorithm using ML criterion:
+
+	Partition: 0 best-scoring AA model: VT likelihood -377038.882376 with fixed base frequencies
+
+
+Inference[0] final GAMMA-based Likelihood: -377038.881159 tree written to file /scratch/beegfs/monthly/dmoi/archaea/psiblast_wProfileValidation/RAxML_result.tree_filter
+
+
+Starting final GAMMA-based thorough Optimization on tree 0 likelihood -377038.881159 .... 
+
